@@ -1,0 +1,57 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "App user (student or parent)",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["student", "parent"] },
+        "childrenUids": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "role"]
+    },
+    "Progress": {
+      "title": "Module Progress",
+      "description": "Progress of a student in a specific module",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "moduleId": { "type": "string" },
+        "completed": { "type": "boolean" },
+        "score": { "type": "number" },
+        "unlocked": { "type": "boolean" },
+        "lastUpdated": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "moduleId"]
+    },
+    "QuizResult": {
+      "title": "Quiz Result",
+      "description": "Details of a quiz attempt",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "moduleId": { "type": "string" },
+        "score": { "type": "number" },
+        "passed": { "type": "boolean" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/users/{userId}/progress/{moduleId}": {
+      "schema": "Progress",
+      "description": "Student progress tracked per module"
+    },
+    "/users/{userId}/quizResults/{resultId}": {
+      "schema": "QuizResult",
+      "description": "History of quiz attempts"
+    }
+  }
+}

@@ -1,0 +1,182 @@
+@import url("https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800,900&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --color-primary: #4973ff;
+  --color-bg-main: #f0f2f5;
+  --color-card-bg: #ffffff;
+  --shadow-polish: 0 4px 6px rgba(0,0,0,0.05);
+  --shadow-polish-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+  background-color: var(--color-bg-main);
+  color: #1e293b;
+}
+
+/* Professional Polish Wave Header */
+.hero-header {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  background: #4973ff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.wave-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.wave-span {
+  position: absolute;
+  width: 250vh;
+  height: 250vh;
+  top: 0;
+  left: 50%;
+  border-radius: 40%;
+  transform: translate(-50%, -85%);
+  background: rgba(20, 20, 20, 0.1);
+  animation: rotate-polish 20s linear infinite;
+}
+
+.wave-span:nth-child(2) {
+  background: rgba(255, 255, 255, 0.1);
+  animation-duration: 30s;
+  border-radius: 45%;
+}
+
+@keyframes rotate-polish {
+  from { transform: translate(-50%, -85%) rotate(0deg); }
+  to { transform: translate(-50%, -85%) rotate(360deg); }
+}
+
+.user-pill {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding: 8px 16px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-size: 0.85rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.2s ease;
+}
+
+.pill-avatar {
+  width: 32px;
+  height: 32px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4973ff;
+  font-weight: 700;
+}
+
+/* Polish Module Cards */
+.module-card-polish {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-polish);
+  border: 1px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.module-card-polish:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-polish-lg);
+  border-color: #e2e8f0;
+}
+
+.module-card-active {
+  border-left: 4px solid #4973ff;
+  background: #f8faff;
+}
+
+.polish-btn {
+  background: #4973ff;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(73, 115, 255, 0.2);
+}
+
+.polish-btn:hover:not(:disabled) {
+  background: #3b61db;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(73, 115, 255, 0.3);
+}
+
+.polish-progress-bg {
+  width: 100%;
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.polish-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4973ff, #6366f1);
+  border-radius: 10px;
+}
+
+/* Parent Widget Polish */
+.btn-test {
+  margin-top: 20px;
+  background: #4973ff;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+
+.btn-test:hover:not(:disabled) {
+  background: #3b61db;
+  transform: translateY(-1px);
+}
+
+.topic-list {
+  list-style: none;
+  margin-top: 15px;
+}
+
+.topic-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.topic-icon {
+  color: #10b981;
+}

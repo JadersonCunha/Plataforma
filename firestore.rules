@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isParentOf(studentId) {
+      // Parents can read their children's progress if the studentId is in their childrenUids array
+      return isSignedIn() && studentId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.childrenUids;
+    }
+
+    function isValidUser(data) {
+      return data.email is string &&
+             data.role in ['student', 'parent'] &&
+             (data.keys().hasAll(['email', 'role']));
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isParentOf(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && 
+                      isValidUser(request.resource.data) &&
+                      request.resource.data.email == resource.data.email; // Email is immutable
+
+      match /progress/{moduleId} {
+        allow read: if isOwner(userId) || isParentOf(userId);
+        allow write: if isOwner(userId);
+      }
+
+      match /quizResults/{resultId} {
+        allow read: if isOwner(userId) || isParentOf(userId);
+        allow create: if isOwner(userId);
+      }
+    }
+  }
+}
