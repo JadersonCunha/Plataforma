@@ -21,6 +21,7 @@ export interface UserProfile {
   childrenUids?: string[];
 }
 
+// App entry point - Optimized for Laboratório de Protagonismo
 export default function App() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
