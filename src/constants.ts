@@ -12,7 +12,8 @@ export interface ModuleData {
   icon: string;
   content: string;
   quiz: Question[];
-  scheduleDate: string; // ISO date string — earliest date the module becomes available
+  scheduleDate: string;
+  type?: 'theory' | 'typemaster' | 'officemaster'; // tipo de módulo
 }
 
 export const MODULES: ModuleData[] = [
@@ -41,6 +42,7 @@ export const MODULES: ModuleData[] = [
     title: 'Digitação',
     icon: 'Keyboard',
     scheduleDate: '2025-01-13',
+    type: 'typemaster',
     content: `
       Dominar o teclado é essencial para produtividade.
       - **Posicionamento:** Dedos indicadores nas teclas F e J.
@@ -58,6 +60,7 @@ export const MODULES: ModuleData[] = [
     title: 'Pacote Office',
     icon: 'FileText',
     scheduleDate: '2025-01-20',
+    type: 'officemaster',
     content: `
       As ferramentas clássicas de escritório:
       - **Word:** Edição de textos profissionais.

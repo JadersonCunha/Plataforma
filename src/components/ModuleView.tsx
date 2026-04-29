@@ -4,6 +4,8 @@ import { UserProfile } from '../App';
 import * as Icons from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import { motion } from 'motion/react';
+import TypeMasterModule from './typemaster/TypeMasterModule';
+import OfficeMasterModule from './officemaster/OfficeMasterModule';
 
 export default function ModuleView({ profile }: { profile: UserProfile }) {
   const { moduleId } = useParams();
@@ -29,7 +31,11 @@ export default function ModuleView({ profile }: { profile: UserProfile }) {
         </div>
       </div>
     );
- }
+  }
+
+  // Renderiza módulo especializado
+  if (module.type === 'typemaster') return <TypeMasterModule profile={profile} />;
+  if (module.type === 'officemaster') return <OfficeMasterModule profile={profile} />;
 
   // @ts-ignore
   const IconComponent = Icons[module.icon] as LucideIcon;
