@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, query, getDocs, doc, setDoc } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { MODULES } from '../constants';
 import { UserProfile } from '../App';
@@ -12,6 +12,7 @@ interface ModuleProgress {
   moduleId: string;
   completed: boolean;
   score: number;
+  attempts: number;
 }
 
 export default function Dashboard({ profile }: { profile: UserProfile }) {
@@ -20,12 +21,9 @@ export default function Dashboard({ profile }: { profile: UserProfile }) {
 
   useEffect(() => {
     const fetchProgress = async () => {
-      const q = query(collection(db, 'users', profile.uid, 'progress'));
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await getDocs(collection(db, 'users', profile.uid, 'progress'));
       const progMap: Record<string, ModuleProgress> = {};
-      querySnapshot.forEach((doc) => {
-        progMap[doc.id] = doc.data() as ModuleProgress;
-      });
+      querySnapshot.forEach((d) => { progMap[d.id] = d.data() as ModuleProgress; });
       setProgress(progMap);
       setLoading(false);
     };
@@ -86,9 +84,21 @@ export default function Dashboard({ profile }: { profile: UserProfile }) {
             {MODULES.map((module, index) => {
               const modProg = progress[module.id];
               const isCompleted = modProg?.completed;
+              const attempts = modProg?.attempts ?? 0;
+              const maxAttemptsReached = attempts >= 3 && !isCompleted;
+
+              // Bloqueio por cronograma
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const scheduleDate = new Date(module.scheduleDate + 'T00:00:00');
+              const isScheduleLocked = today < scheduleDate;
+
+              // Bloqueio por dependência: módulo anterior precisa estar concluído
               const prevModule = MODULES[index - 1];
-              const isLocked = index > 0 && !(progress[prevModule?.id]?.completed);
-              
+              const isDependencyLocked = index > 0 && !(progress[prevModule?.id]?.completed);
+
+              const isLocked = isScheduleLocked || isDependencyLocked || maxAttemptsReached;
+
               // @ts-ignore
               const IconComponent = Icons[module.icon] as LucideIcon;
 
@@ -119,10 +129,10 @@ export default function Dashboard({ profile }: { profile: UserProfile }) {
 
                   <div className="mt-auto pt-6 border-t border-slate-50">
                     <div className="flex justify-between text-xs font-black mb-2">
-                       <span className={isCompleted ? 'text-green-600' : 'text-slate-400'}>
-                         {isCompleted ? 'COMPLETO' : 'DISPONÍVEL'}
-                       </span>
-                       <span className="text-slate-500">{isCompleted ? '100%' : '0%'}</span>
+                      <span className={isCompleted ? 'text-green-600' : maxAttemptsReached ? 'text-red-500' : isScheduleLocked ? 'text-amber-500' : 'text-slate-400'}>
+                        {isCompleted ? 'CONCLUÍDO' : maxAttemptsReached ? 'TENTATIVAS ESGOTADAS' : isScheduleLocked ? `DISPONÍVEL EM ${scheduleDate.toLocaleDateString('pt-BR')}` : attempts > 0 ? `TENTATIVA ${attempts}/3` : 'DISPONÍVEL'}
+                      </span>
+                      <span className="text-slate-500">{modProg?.score ? `${modProg.score}%` : '0%'}</span>
                     </div>
                     <div className="polish-progress-bg">
                       <motion.div

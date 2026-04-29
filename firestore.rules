@@ -34,7 +34,9 @@ service cloud.firestore {
 
       match /progress/{moduleId} {
         allow read: if isOwner(userId) || isParentOf(userId);
-        allow write: if isOwner(userId);
+        allow write: if isOwner(userId) &&
+                       request.resource.data.attempts is int &&
+                       request.resource.data.attempts <= 3;
       }
 
       match /quizResults/{resultId} {

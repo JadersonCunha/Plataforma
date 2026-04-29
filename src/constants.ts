@@ -12,6 +12,7 @@ export interface ModuleData {
   icon: string;
   content: string;
   quiz: Question[];
+  scheduleDate: string; // ISO date string — earliest date the module becomes available
 }
 
 export const MODULES: ModuleData[] = [
@@ -19,6 +20,7 @@ export const MODULES: ModuleData[] = [
     id: 'm1',
     title: 'Informática Básica',
     icon: 'Monitor',
+    scheduleDate: '2025-01-06',
     content: `
       Neste módulo, conheceremos o coração do seu computador.
       - **Sistema Operacional:** O software principal (Windows, Linux, MacOS).
@@ -38,6 +40,7 @@ export const MODULES: ModuleData[] = [
     id: 'm2',
     title: 'Digitação',
     icon: 'Keyboard',
+    scheduleDate: '2025-01-13',
     content: `
       Dominar o teclado é essencial para produtividade.
       - **Posicionamento:** Dedos indicadores nas teclas F e J.
@@ -54,6 +57,7 @@ export const MODULES: ModuleData[] = [
     id: 'm3',
     title: 'Pacote Office',
     icon: 'FileText',
+    scheduleDate: '2025-01-20',
     content: `
       As ferramentas clássicas de escritório:
       - **Word:** Edição de textos profissionais.
@@ -69,6 +73,7 @@ export const MODULES: ModuleData[] = [
     id: 'm4',
     title: 'Google Workspace',
     icon: 'Cloud',
+    scheduleDate: '2025-01-27',
     content: `
       O trabalho nas nuvens:
       - **Google Docs, Sheets e Slides:** Colaboração em tempo real.
@@ -84,6 +89,7 @@ export const MODULES: ModuleData[] = [
     id: 'm5',
     title: 'E-mail Profissional',
     icon: 'Mail',
+    scheduleDate: '2025-02-03',
     content: `
       Sua carta digital para o mundo:
       - **Estrutura:** Destinatário (Para), Assunto (Curto e direto), Corpo do E-mail.
@@ -100,6 +106,7 @@ export const MODULES: ModuleData[] = [
     id: 'm6',
     title: 'IA no Trabalho',
     icon: 'Sparkles',
+    scheduleDate: '2025-02-10',
     content: `
       A inteligência artificial como sua assistente:
       - **IA Generativa:** Textos, imagens e códigos.
@@ -116,6 +123,7 @@ export const MODULES: ModuleData[] = [
     id: 'm7',
     title: 'Mundo do Trabalho',
     icon: 'Briefcase',
+    scheduleDate: '2025-02-17',
     content: `
       Se preparando para a vida profissional:
       - **Currículo:** Simples, direto e verdadeiro.

@@ -11,6 +11,26 @@ export default function ModuleView({ profile }: { profile: UserProfile }) {
 
   if (!module) return <div>Módulo não encontrado</div>;
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const scheduleDate = new Date(module.scheduleDate + 'T00:00:00');
+  if (today < scheduleDate) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-20 text-center">
+        <div className="bg-white p-12 rounded-3xl shadow-xl border border-slate-100">
+          <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 bg-amber-100 text-amber-600">
+            <Icons.CalendarClock size={40} />
+          </div>
+          <h2 className="text-2xl font-black text-slate-800 mb-3">Módulo ainda não liberado</h2>
+          <p className="text-slate-500 mb-8">Este módulo estará disponível a partir de <strong>{scheduleDate.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</strong>.</p>
+          <Link to="/dashboard" className="px-8 py-4 bg-slate-100 text-slate-700 rounded-2xl font-bold hover:bg-slate-200 transition-all">
+            Voltar ao Painel
+          </Link>
+        </div>
+      </div>
+    );
+ }
+
   // @ts-ignore
   const IconComponent = Icons[module.icon] as LucideIcon;
 

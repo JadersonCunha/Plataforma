@@ -3,10 +3,13 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { MODULES, Question } from '../constants';
 import { UserProfile } from '../App';
 import { db } from '../lib/firebase';
-import { doc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, addDoc, collection, serverTimestamp, getDoc } from 'firebase/firestore';
 import * as Icons from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GoogleGenAI } from "@google/genai";
+
+const MAX_ATTEMPTS = 3;
+const MIN_SCORE = 70;
 
 const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || 'dummy_key' });
 
@@ -19,8 +22,36 @@ export default function QuizView({ profile }: { profile: UserProfile }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<{ score: number; passed: boolean } | null>(null);
   const [gradingDetails, setGradingDetails] = useState<string>('');
+  const [attempts, setAttempts] = useState(0);
+  const [loadingAttempts, setLoadingAttempts] = useState(true);
+
+  useEffect(() => {
+    if (!module) return;
+    getDoc(doc(db, 'users', profile.uid, 'progress', module.id)).then(snap => {
+      if (snap.exists()) setAttempts(snap.data().attempts ?? 0);
+      setLoadingAttempts(false);
+    });
+  }, [module?.id, profile.uid]);
 
   if (!module) return <div>Módulo não encontrado</div>;
+  if (loadingAttempts) return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" /></div>;
+
+  if (attempts >= MAX_ATTEMPTS) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-20 text-center">
+        <div className="bg-white p-12 rounded-3xl shadow-2xl border border-slate-100">
+          <div className="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-8 bg-red-100 text-red-600">
+            <Icons.Ban size={48} />
+          </div>
+          <h2 className="text-3xl font-black text-slate-800 mb-4">Tentativas Esgotadas</h2>
+          <p className="text-slate-600 mb-8">Você utilizou todas as {MAX_ATTEMPTS} tentativas neste módulo. Entre em contato com seu instrutor para solicitar uma nova chance.</p>
+          <Link to="/dashboard" className="px-8 py-4 bg-slate-100 text-slate-700 rounded-2xl font-bold hover:bg-slate-200 transition-all">
+            Voltar ao Painel
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -69,7 +100,8 @@ export default function QuizView({ profile }: { profile: UserProfile }) {
     }
 
     const scorePercent = Math.round((correctCount / totalQuestions) * 100);
-    const passed = scorePercent >= 70;
+    const passed = scorePercent >= MIN_SCORE;
+    const newAttempts = attempts + 1;
 
     // Save to Firestore
     try {
@@ -78,6 +110,7 @@ export default function QuizView({ profile }: { profile: UserProfile }) {
         moduleId: module.id,
         completed: passed,
         score: scorePercent,
+        attempts: newAttempts,
         lastUpdated: serverTimestamp()
       }, { merge: true });
 
@@ -85,9 +118,11 @@ export default function QuizView({ profile }: { profile: UserProfile }) {
         moduleId: module.id,
         score: scorePercent,
         passed,
+        attempt: newAttempts,
         timestamp: serverTimestamp()
       });
 
+      setAttempts(newAttempts);
       setResult({ score: scorePercent, passed });
     } catch (err) {
       console.error("Error saving progress:", err);
@@ -116,7 +151,9 @@ export default function QuizView({ profile }: { profile: UserProfile }) {
           <p className="text-slate-600 text-lg mb-4">
             {result.passed 
               ? 'Você dominou este módulo e desbloqueou o próximo nível!' 
-              : 'Você precisa de pelo menos 70% para avançar. Revise o conteúdo e tente novamente.'}
+              : attempts >= MAX_ATTEMPTS
+                ? 'Você esgotou todas as tentativas. Fale com seu instrutor.'
+                : `Você precisa de pelo menos ${MIN_SCORE}% para avançar. Você ainda tem ${MAX_ATTEMPTS - attempts} tentativa(s).`}
           </p>
 
           {gradingDetails && (
@@ -136,9 +173,10 @@ export default function QuizView({ profile }: { profile: UserProfile }) {
             {!result.passed ? (
                <button
                 onClick={() => { setResult(null); setAnswers({}); }}
-                className="px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all"
+                disabled={attempts >= MAX_ATTEMPTS}
+                className="px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Tentar Novamente
+                {attempts >= MAX_ATTEMPTS ? 'Sem tentativas restantes' : `Tentar Novamente (${MAX_ATTEMPTS - attempts} restante${MAX_ATTEMPTS - attempts !== 1 ? 's' : ''})`}
               </button>
             ) : (
                 <Link
@@ -159,6 +197,10 @@ export default function QuizView({ profile }: { profile: UserProfile }) {
        <div className="mb-10 text-center">
         <h1 className="text-3xl font-black text-slate-800">Avaliação do Módulo</h1>
         <p className="text-slate-500">{module.title}</p>
+        <div className="mt-3 inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 px-4 py-2 rounded-full text-sm font-bold">
+          <Icons.AlertTriangle size={16} />
+          Tentativa {attempts + 1} de {MAX_ATTEMPTS} — mínimo {MIN_SCORE}% para aprovação
+        </div>
       </div>
 
       <div className="space-y-8">
